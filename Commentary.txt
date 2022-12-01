@@ -1,0 +1,5 @@
+A standard TicTacToe game with a computer, where it will do its best to win you.
+
+Unfortunately, during testing, there were rare cases when the computer made a move in an already occupied field.
+
+P.S.: The user always starts first
