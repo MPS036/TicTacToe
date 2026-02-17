@@ -7,6 +7,7 @@ The human player always starts first and plays as X.
 The computer plays as O.
 The game runs in the terminal.
 The board positions are numbered from 1 to 9:
+
  1 | 2 | 3
 -----------
  4 | 5 | 6
