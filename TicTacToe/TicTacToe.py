@@ -1,116 +1,126 @@
-board = [' ' for x in range(10)]
+import random
 
+HUMAN = "X"
+AI = "O"
 
-def insert_letter(letter, pos):
+board = [' ' for _ in range(10)]
+
+def insert_letter(letter: str, pos: int) -> None:
     board[pos] = letter
 
+def free_space(pos: int) -> bool:
+    return board[pos] == " "
 
-def free_space(pos):
-    return board[pos] == ' '
+def print_board(bo) -> None:
+    print("   |   |")
+    print(f" {bo[1]} | {bo[2]} | {bo[3]}")
+    print("   |   |")
+    print("-----------")
+    print("   |   |")
+    print(f" {bo[4]} | {bo[5]} | {bo[6]}")
+    print("   |   |")
+    print("-----------")
+    print("   |   |")
+    print(f" {bo[7]} | {bo[8]} | {bo[9]}")
+    print("   |   |")
 
+def is_winner(bo, le: str) -> bool:
+    wins = [
+        (7, 8, 9),
+        (4, 5, 6),
+        (1, 2, 3),
+        (1, 4, 7),
+        (2, 5, 8),
+        (3, 6, 9),
+        (1, 5, 9),
+        (3, 5, 7),
+    ]
+    return any(bo[a] == bo[b] == bo[c] == le for a, b, c in wins)
+    
+def available_moves(bo) -> list[int]:
+    return [i for i in range(1, 10) if bo[i] == " "]
 
-def print_board(board):
-    print('   |   |')
-    print(' ' + board[1] + ' | ' + board[2] + ' | ' + board[3])
-    print('   |   |')
-    print('-----------')
-    print('   |   |')
-    print(' ' + board[4] + ' | ' + board[5] + ' | ' + board[6])
-    print('   |   |')
-    print('-----------')
-    print('   |   |')
-    print(' ' + board[7] + ' | ' + board[8] + ' | ' + board[9])
-    print('   |   |')
-
-
-def is_winner(bo, le):
-    return (bo[7] == le and bo[8] == le and bo[9] == le) | (bo[4] == le and bo[5] == le and bo[6] == le) | (bo[1] == le and bo[2] == le and bo[3] == le) | (bo[1] == le and bo[4] == le and bo[7] == le) or(bo[2] == le and bo[5] == le and bo[8] == le) | (bo[3] == le and bo[6] == le and bo[9] == le) | (bo[1] == le and bo[5] == le and bo[9] == le) | (bo[3] == le and bo[5] == le and bo[7] == le)
-
-
-def player_move():
-    run = True
-    while run:
-        move = input('Select a position where to place an \'X\' (1-9): ')
+def player_move() -> None:
+    while True:
+        move_str = input(f"Select a position to place '{HUMAN}' (1-9): ").strip()
         try:
-            move = int(move)
-            if (move > 0) and (move < 10):
-                if free_space(move):
-                    run = False
-                    insert_letter('X', move)
-                else:
-                    print('This space is already taken')
-            else:
-                print('Select a number within the range')
-        except:
-            print('Type a number')
+            move = int(move_str)
+        except ValueError:
+            print("Type a number.")
+            continue
 
+        if move not in range(1, 10):
+            print("Select a number within the range 1-9.")
+            continue
 
-def computer_move():
-    possibleMoves = [x for x, letter in enumerate(board) if letter == ' ' and x != 0]
-    move = 0
-    for let in ['O', 'X']:
-        for i in possibleMoves:
-            boardCopy = board[:]
-            boardCopy[i] = let
-            if is_winner(boardCopy, let):
-                move = i
-                return move
-    openCorners = []
-    for i in possibleMoves:
-        for i in [1, 3, 7, 9]:
-            openCorners.append(i)
-    if len(openCorners) > 0:
-        move = select_random(openCorners)
-        return move
-    if 5 in possibleMoves:
-        move = 5
-        return move
-    openEdges = []
-    for i in possibleMoves:
-        for i in [2, 4, 6, 8]:
-            openEdges.append(i)
-    if len(openEdges) > 0:
-        move = select_random(openEdges)
-    return move
+        if not free_space(move):
+            print("This space is already taken.")
+            continue
 
+        insert_letter(HUMAN, move)
+        return
 
-def select_random(li):
-    import random
-    ln = len(li)
-    r = random.randrange(0, ln)
-    return li[r]
+def select_random(moves: list[int]) -> int:
+    return random.choice(moves)
 
+def computer_move() -> int:
+    possible = available_moves(board)
 
-def full_board(board):
-    if board.count(' ') > 1:
-        return False
-    else:
-        return True
+    # 1) win if possible, 2) block human win
+    for let in (AI, HUMAN):
+        for i in possible:
+            copy_board = board[:]
+            copy_board[i] = let
+            if is_winner(copy_board, let):
+                return i
 
+    # 3) corners
+    corners = [i for i in (1, 3, 7, 9) if i in possible]
+    if corners:
+        return select_random(corners)
 
-def main():
+    # 4) center
+    if 5 in possible:
+        return 5
+
+    # 5) edges
+    edges = [i for i in (2, 4, 6, 8) if i in possible]
+    if edges:
+        return select_random(edges)
+
+    return 0
+
+def full_board(bo) -> bool:
+    return " " not in bo[1:]
+
+def main() -> None:
     print_board(board)
-    while not(full_board(board)):
-        if not (is_winner(board, 'O')):
-            player_move()
-            print_board(board)
-        else:
-            print('Sorry to tell you, but you lost to PC')
+
+    while True:
+        if is_winner(board, AI):
+            print("Sorry to tell you, but you lost to PC.")
             break
-        if not (is_winner(board, 'X')):
-            move = computer_move()
-            if move == 0:
-                print('Well, it is a Tie Game')
-            else:
-                insert_letter('O', move)
-                print('Computer made a play in position', move)
-                print_board(board)
-        else:
-            print('Yay, you won! Well played')
+        if is_winner(board, HUMAN):
+            print("Yay, you won! Well played.")
+            break
+        if full_board(board):
+            print("Well, it is a Tie Game.")
             break
 
-    if full_board(board):
-        print('Well, it is a Tie Game')
+        player_move()
+        print_board(board)
 
+        if is_winner(board, HUMAN) or full_board(board):
+            continue
 
-main()
+        move = computer_move()
+        if move == 0:
+            print("Well, it is a Tie Game.")
+            break
+
+        insert_letter(AI, move)
+        print(f"Computer made a play in position {move}")
+        print_board(board)
+
+if __name__ == "__main__":
+    main()
