@@ -28,4 +28,3 @@ This ensures the AI plays optimally within the defined logic.
 🛠 Requirements
 
 This project uses only Python’s standard library.
-Python 3.x is required.
