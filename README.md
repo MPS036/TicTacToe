@@ -15,7 +15,7 @@ The board positions are numbered from 1 to 9:
  7 | 8 | 9
 ```
 
-🤖 AI Strategy
+🤖 AI Strategy:
 
 The computer uses a deterministic rule-based strategy:
 (i) Win if possible;
@@ -25,6 +25,6 @@ The computer uses a deterministic rule-based strategy:
 (v) Take an edge (2, 4, 6, 8).
 This ensures the AI plays optimally within the defined logic.
 
-🛠 Requirements
+🛠 Requirements:
 
 This project uses only Python’s standard library.
